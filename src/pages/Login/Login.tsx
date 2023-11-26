@@ -1,19 +1,42 @@
+import { useState } from "react";
 import { withRedirectAuthenticated } from "../../components/RedirectAuthenticated";
 import { useAuthContext } from "../../context/AuthContext";
+import { LoginPayload } from "../../utils/types";
 
 function Login() {
-  const { user, login, logout } = useAuthContext();
+  const [loginPayload, setLoginPayload] = useState<LoginPayload>({
+    username: "test@test.test",
+    password: "password"
+  });
+  const { login, logout } = useAuthContext();
 
-  console.log(user);
+  const handleInput = (key: keyof LoginPayload, value: string) => {
+    setLoginPayload({ ...loginPayload, [key]: value });
+  };
 
   return (
     <>
+      <label>Username</label>
+      <input
+        defaultValue={loginPayload.username}
+        type="text"
+        onChange={(event) => {
+          handleInput("username", event?.target.value);
+        }}
+      />
+
+      <label>Password</label>
+      <input
+        defaultValue={loginPayload.password}
+        type="password"
+        onChange={(event) => {
+          handleInput("password", event?.target.value);
+        }}
+      />
+
       <button
         onClick={() => {
-          login({
-            username: "test@test.test",
-            password: "password"
-          });
+          login(loginPayload);
         }}
       >
         Login
