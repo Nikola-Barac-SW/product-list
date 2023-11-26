@@ -1,25 +1,42 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Route, BrowserRouter, Routes } from "react-router-dom";
+import { AuthContextProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const Login = React.lazy(() => import("./pages/Login"));
+const ProductList = React.lazy(() => import("./pages/ProductList"));
+const Cart = React.lazy(() => import("./pages/Cart"));
+
+const client = new QueryClient({
+  defaultOptions: {}
+});
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <QueryClientProvider client={client}>
+        <AuthContextProvider>
+          <React.Suspense fallback={<>Loading...</>}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/*" element={<ProtectedRoute />}>
+                <Route path="products" element={<ProductList />} />
+                <Route path="cart" element={<Cart />} />
+                <Route
+                  path="*"
+                  element={
+                    <>
+                      <h1>404</h1>
+                    </>
+                  }
+                />
+              </Route>
+            </Routes>
+          </React.Suspense>
+        </AuthContextProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 }
 
