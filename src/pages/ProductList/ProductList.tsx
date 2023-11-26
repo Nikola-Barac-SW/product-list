@@ -29,6 +29,8 @@ function ProductList() {
   };
 
   const handleAddToCart = (product: Product) => {
+    setProductQuantities(productQuantities.set(product.id, 1));
+
     addProduct(product, productQuantities.get(product.id) ?? 1);
   };
 

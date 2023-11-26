@@ -1,5 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
 import type { LoginPayload, Nullable, User } from "../../utils/types";
+
 import {
   PropsWithChildren,
   createContext,
@@ -7,7 +7,7 @@ import {
   useEffect,
   useState
 } from "react";
-import { login as authLogin } from "../../services/auth";
+import { login as loginUser } from "../../services/auth";
 
 interface AuthContextValues {
   user: Nullable<User>;
@@ -36,36 +36,26 @@ function AuthContextProvider({ children }: PropsWithChildren) {
       setUser(user);
     } catch (error) {
       setUser(null);
+    } finally {
+      setIsAuthenticating(false);
     }
-
-    setIsAuthenticating(false);
   }, []);
 
-  const { mutate } = useMutation({
-    mutationKey: ["user"],
-    mutationFn: authLogin
-  });
-
   const login = (payload: LoginPayload) => {
-    setUser(user);
+    setIsAuthenticating(true);
 
-    mutate(payload, {
-      onSuccess(user) {
-        try {
-          localStorage.setItem("user", JSON.stringify(user));
-          setUser(user);
-        } catch (error) {
-          setUser(null);
-        }
-      },
-      onError() {
-        localStorage.removeItem("user");
+    loginUser(payload)
+      .then((user) => {
+        localStorage.setItem("user", JSON.stringify(user));
+
+        setUser(user);
+      })
+      .catch(() => {
         setUser(null);
-      },
-      onSettled() {
+      })
+      .finally(() => {
         setIsAuthenticating(false);
-      }
-    });
+      });
   };
 
   const logout = () => {
