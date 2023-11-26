@@ -50,7 +50,7 @@ function ProductList() {
           <h3 className="text-lg font-semibold mb-2">
             {product.name} - {product.price}
           </h3>
-          <img src="../public/{product.image}" />
+          <img src={`/images/product_${product.id}.jpg`} />
           <p className="text-gray-700">{product.description}</p>
 
           <div style={{ display: "flex" }}>

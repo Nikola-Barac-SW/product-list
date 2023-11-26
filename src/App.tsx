@@ -1,7 +1,7 @@
 import React from "react";
-import { Route, BrowserRouter, Routes } from "react-router-dom";
+import { Route, BrowserRouter, Routes, Outlet } from "react-router-dom";
 import { AuthContextProvider } from "./context/AuthContext";
-import { ProtectedRoute } from "./components";
+import { Header, ProtectedRoute } from "./components";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartContextProvider } from "./context/CartContext";
 
@@ -18,6 +18,15 @@ const client = new QueryClient({
   }
 });
 
+const LayoutWithHeader = () => {
+  return (
+    <>
+      <Header />
+      <Outlet />
+    </>
+  );
+};
+
 function App() {
   return (
     <BrowserRouter>
@@ -28,8 +37,11 @@ function App() {
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/*" element={<ProtectedRoute />}>
-                  <Route path="products" element={<ProductList />} />
-                  <Route path="cart" element={<Cart />} />
+                  <Route element={<LayoutWithHeader />}>
+                    <Route path="products" element={<ProductList />} />
+                    <Route path="cart" element={<Cart />} />
+                  </Route>
+
                   <Route
                     path="*"
                     element={
@@ -39,6 +51,15 @@ function App() {
                     }
                   />
                 </Route>
+
+                <Route
+                  path="*"
+                  element={
+                    <>
+                      <h1>404</h1>
+                    </>
+                  }
+                />
               </Routes>
             </React.Suspense>
           </CartContextProvider>
