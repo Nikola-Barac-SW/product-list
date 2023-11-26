@@ -3,13 +3,19 @@ import { Route, BrowserRouter, Routes } from "react-router-dom";
 import { AuthContextProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { CartContextProvider } from "./context/CartContext";
 
 const Login = React.lazy(() => import("./pages/Login"));
 const ProductList = React.lazy(() => import("./pages/ProductList"));
 const Cart = React.lazy(() => import("./pages/Cart"));
 
 const client = new QueryClient({
-  defaultOptions: {}
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000
+    }
+  }
 });
 
 function App() {
@@ -17,23 +23,25 @@ function App() {
     <BrowserRouter>
       <QueryClientProvider client={client}>
         <AuthContextProvider>
-          <React.Suspense fallback={<>Loading...</>}>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/*" element={<ProtectedRoute />}>
-                <Route path="products" element={<ProductList />} />
-                <Route path="cart" element={<Cart />} />
-                <Route
-                  path="*"
-                  element={
-                    <>
-                      <h1>404</h1>
-                    </>
-                  }
-                />
-              </Route>
-            </Routes>
-          </React.Suspense>
+          <CartContextProvider>
+            <React.Suspense fallback={<>Loading...</>}>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/*" element={<ProtectedRoute />}>
+                  <Route path="products" element={<ProductList />} />
+                  <Route path="cart" element={<Cart />} />
+                  <Route
+                    path="*"
+                    element={
+                      <>
+                        <h1>404</h1>
+                      </>
+                    }
+                  />
+                </Route>
+              </Routes>
+            </React.Suspense>
+          </CartContextProvider>
         </AuthContextProvider>
       </QueryClientProvider>
     </BrowserRouter>
